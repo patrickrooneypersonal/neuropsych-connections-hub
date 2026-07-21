@@ -30,6 +30,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import logo from "@/assets/neuropsych-logo-transparent.png";
+import logoAsset from "@/assets/neuropsych-logo.png.asset.json";
+
+const logoFallback = { url: logo };
+const logoImg = typeof logo === "string" ? { url: logo } : logoFallback;
+void logoAsset;
 
 export const Route = createFileRoute("/")({
   head: () => ({
