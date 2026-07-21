@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Phone,
   Brain,
@@ -16,19 +16,13 @@ import {
   Menu,
   X,
   Quote,
-  ShieldCheck,
+  Printer,
+  Lock,
+  LockOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import logo from "@/assets/neuropsych-logo-transparent.png";
 
@@ -62,6 +56,9 @@ export const Route = createFileRoute("/")({
 
 const PHONE = "(973) 410-0705";
 const PHONE_HREF = "tel:+19734100705";
+const FAX = "(973) 410-0706";
+const PORTAL_ACCESS_CODE = "ROONEY2026";
+const PORTAL_STORAGE_KEY = "npc-portal-unlocked";
 
 function Index() {
   return (
@@ -71,7 +68,8 @@ function Index() {
         <Hero />
         <Services />
         <About />
-        <FormsLocation />
+        <FormsPortal />
+        <ContactInfo />
       </main>
       <Footer />
     </div>
@@ -82,9 +80,8 @@ function Header() {
   const [open, setOpen] = useState(false);
   const links = [
     { href: "#services", label: "Services" },
-    { href: "#academic", label: "Academic Consulting" },
     { href: "#about", label: "About Dr. Rooney" },
-    { href: "#forms", label: "Forms & Patient Info" },
+    { href: "#forms", label: "Patient Forms" },
     { href: "#contact", label: "Contact" },
   ];
   return (
@@ -206,17 +203,18 @@ function Hero() {
 
           <div className="mt-9 flex flex-wrap gap-3">
             <a
-              href="#contact"
+              href={PHONE_HREF}
               className="inline-flex items-center gap-2 rounded-full bg-teal px-6 py-3.5 text-sm font-semibold text-teal-foreground shadow-lg transition-all hover:-translate-y-0.5 hover:bg-teal/90 hover:shadow-xl"
             >
-              Schedule a Consultation
-              <ArrowRight className="h-4 w-4" />
+              <Phone className="h-4 w-4" />
+              Call {PHONE}
             </a>
             <a
-              href="#referrals"
+              href="#forms"
               className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all hover:bg-white/10"
             >
-              For Referring Providers & Schools
+              Patient Forms Portal
+              <ArrowRight className="h-4 w-4" />
             </a>
           </div>
 
@@ -405,93 +403,221 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-const forms = [
-  { title: "New Patient Intake Form", desc: "Complete prior to your first appointment." },
-  { title: "HIPAA Privacy Notice", desc: "Our privacy practices and your rights." },
-  { title: "Consent for Treatment", desc: "Informed consent documentation." },
-  { title: "Insurance & Payment Policies", desc: "Fees, insurance, and cancellations." },
+const portalForms = [
+  {
+    title: "Adult Intake Form",
+    desc: "Health history and intake questionnaire for adult patients.",
+    href: "#",
+  },
+  {
+    title: "Pediatric Intake Form",
+    desc: "Developmental and clinical history for children and adolescents.",
+    href: "#",
+  },
+  {
+    title: "HIPAA & Practice Policies",
+    desc: "Privacy notice, consent, and financial policies.",
+    href: "#",
+  },
 ];
 
-function FormsLocation() {
+function FormsPortal() {
+  const [unlocked, setUnlocked] = useState(false);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.localStorage.getItem(PORTAL_STORAGE_KEY) === "true") {
+      setUnlocked(true);
+    }
+  }, []);
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (code.trim().toUpperCase() === PORTAL_ACCESS_CODE) {
+      setUnlocked(true);
+      setError("");
+      window.localStorage.setItem(PORTAL_STORAGE_KEY, "true");
+      toast.success("Access granted — welcome to the Patient Forms Portal.");
+    } else {
+      setError(
+        `Invalid code. Please call Dr. Rooney's office at ${PHONE} to request your access code.`,
+      );
+    }
+  };
+
+  const onLock = () => {
+    window.localStorage.removeItem(PORTAL_STORAGE_KEY);
+    setUnlocked(false);
+    setCode("");
+  };
+
   return (
-    <section id="forms" className="relative py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-4 md:px-8">
-        <div className="grid gap-16 lg:grid-cols-2">
-          {/* Forms */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal">
-              Practice Forms
+    <section id="forms" className="relative bg-secondary/40 py-24 md:py-32">
+      <div className="mx-auto max-w-3xl px-4 md:px-8">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal">
+            Patient Forms Portal
+          </p>
+          <h2 className="mt-3 font-serif text-3xl text-navy md:text-4xl">
+            Secure access to intake documents
+          </h2>
+          <p className="mt-4 text-muted-foreground">
+            Practice forms are provided by referral. Please enter the access code shared by Dr.
+            Rooney's office to view and download your intake documents.
+          </p>
+        </div>
+
+        {!unlocked ? (
+          <form
+            onSubmit={onSubmit}
+            className="mx-auto mt-10 max-w-md rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-card)]"
+          >
+            <div className="mb-6 flex items-center justify-center">
+              <div className="grid h-14 w-14 place-items-center rounded-full bg-navy text-teal">
+                <Lock className="h-6 w-6" strokeWidth={1.8} />
+              </div>
+            </div>
+            <Label htmlFor="access-code" className="text-navy">
+              Access Code
+            </Label>
+            <Input
+              id="access-code"
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                if (error) setError("");
+              }}
+              placeholder="Enter your access code"
+              autoComplete="off"
+              maxLength={40}
+              className="mt-2 tracking-widest"
+              aria-invalid={error ? "true" : "false"}
+              aria-describedby={error ? "access-code-error" : undefined}
+            />
+            {error && (
+              <p
+                id="access-code-error"
+                role="alert"
+                className="mt-3 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+              >
+                {error}
+              </p>
+            )}
+            <Button
+              type="submit"
+              className="mt-5 w-full rounded-full bg-teal py-6 text-sm font-semibold text-teal-foreground hover:bg-teal/90"
+            >
+              Unlock Forms
+            </Button>
+            <p className="mt-4 text-center text-xs text-muted-foreground">
+              Don't have a code?{" "}
+              <a href={PHONE_HREF} className="font-medium text-teal hover:underline">
+                Call {PHONE}
+              </a>
             </p>
-            <h2 className="mt-3 font-serif text-3xl text-navy md:text-4xl">
-              Forms & patient information
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              Please review and complete relevant forms before your visit. Bring printed copies or
-              email them securely in advance.
-            </p>
-            <div className="mt-8 grid gap-3">
-              {forms.map((f) => (
+          </form>
+        ) : (
+          <div className="mt-10">
+            <div className="flex items-center justify-between rounded-xl border border-teal/30 bg-teal-soft/60 px-4 py-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-navy">
+                <LockOpen className="h-4 w-4 text-teal" />
+                Portal unlocked
+              </div>
+              <button
+                onClick={onLock}
+                className="text-xs font-medium text-navy/70 underline-offset-4 hover:text-teal hover:underline"
+              >
+                Lock portal
+              </button>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {portalForms.map((f) => (
                 <a
                   key={f.title}
-                  href="#"
-                  className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[var(--shadow-card)]"
+                  href={f.href}
+                  className="group flex flex-col rounded-xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-teal/40 hover:shadow-[var(--shadow-elegant)]"
                 >
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-teal-soft text-teal">
+                  <div className="grid h-12 w-12 place-items-center rounded-lg bg-teal-soft text-teal">
                     <FileText className="h-5 w-5" strokeWidth={1.8} />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate font-medium text-navy">{f.title}</div>
-                    <div className="truncate text-sm text-muted-foreground">{f.desc}</div>
+                  <h3 className="mt-5 font-serif text-lg text-navy">{f.title}</h3>
+                  <p className="mt-2 flex-1 text-sm text-muted-foreground">{f.desc}</p>
+                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-teal">
+                    <Download className="h-4 w-4" />
+                    Download PDF
                   </div>
-                  <Download className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-teal" />
                 </a>
               ))}
             </div>
-
-            <div className="mt-10 rounded-2xl border border-border bg-navy p-8 text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal">
-                Office Location
-              </p>
-              <div className="mt-4 space-y-3 text-sm">
-                <div className="flex items-start gap-3">
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
-                  <span className="text-white/85">Madison, New Jersey</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
-                  <a href={PHONE_HREF} className="text-white/85 hover:text-teal">
-                    {PHONE}
-                  </a>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Mail className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
-                  <span className="text-white/85">By appointment · secure correspondence</span>
-                </div>
-              </div>
-            </div>
           </div>
+        )}
+      </div>
+    </section>
+  );
+}
 
-          {/* Contact */}
-          <div id="contact" className="lg:pt-14">
-            <div className="rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-card)] md:p-10">
+function ContactInfo() {
+  return (
+    <section id="contact" className="relative py-24 md:py-32">
+      <div className="mx-auto max-w-5xl px-4 md:px-8">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal">
+            Get in Touch
+          </p>
+          <h2 className="mt-3 font-serif text-3xl text-navy md:text-5xl">
+            Contact the practice directly
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
+            The majority of our patients are seen by direct referral. To inquire about services or
+            schedule a consultation, please reach out to the office by phone or fax.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          <ContactCard
+            icon={Phone}
+            label="Phone"
+            value={PHONE}
+            href={PHONE_HREF}
+            hint="Preferred — leave a confidential voicemail"
+          />
+          <ContactCard
+            icon={Printer}
+            label="Fax"
+            value={FAX}
+            hint="For referrals and secure documents"
+          />
+          <ContactCard
+            icon={MapPin}
+            label="Office"
+            value="Madison, New Jersey"
+            hint="By appointment only"
+          />
+        </div>
+
+        <div className="mt-10 rounded-2xl border border-border bg-navy p-8 text-white md:p-10">
+          <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
+            <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal">
-                Contact
+                Ready to speak with Dr. Rooney's office?
               </p>
-              <h2 className="mt-3 font-serif text-3xl text-navy md:text-4xl">
-                Schedule a consultation
-              </h2>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Share a few details and we will reach out within one business day.
+              <p className="mt-2 font-serif text-2xl text-white md:text-3xl">
+                Call {PHONE} to get started.
               </p>
-              <ContactForm />
-              <div className="mt-6 flex items-start gap-3 rounded-lg bg-muted p-4 text-xs leading-relaxed text-muted-foreground">
-                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
-                <p>
-                  Please do not submit confidential medical information via this form. For clinical
-                  matters, please call the office directly.
-                </p>
-              </div>
+              <p className="mt-2 max-w-xl text-sm text-white/70">
+                Office hours by appointment. Please do not share confidential medical information
+                over email or unsecured channels.
+              </p>
             </div>
+            <a
+              href={PHONE_HREF}
+              className="inline-flex items-center gap-2 rounded-full bg-teal px-6 py-3.5 text-sm font-semibold text-teal-foreground shadow-lg transition-all hover:-translate-y-0.5 hover:bg-teal/90 hover:shadow-xl"
+            >
+              <Phone className="h-4 w-4" />
+              Call {PHONE}
+            </a>
           </div>
         </div>
       </div>
@@ -499,120 +625,39 @@ function FormsLocation() {
   );
 }
 
-function ContactForm() {
-  const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    preferredTime: "",
-    inquiryType: "",
-    message: "",
-  });
-  const set = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.inquiryType) {
-      toast.error("Please complete the required fields.");
-      return;
-    }
-    setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      toast.success("Thank you — we'll be in touch within one business day.");
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        preferredTime: "",
-        inquiryType: "",
-        message: "",
-      });
-    }, 700);
-  };
-
-  return (
-    <form onSubmit={onSubmit} className="mt-6 space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label htmlFor="name">Name *</Label>
-          <Input
-            id="name"
-            value={form.name}
-            onChange={(e) => set("name", e.target.value)}
-            maxLength={100}
-            required
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="email">Email *</Label>
-          <Input
-            id="email"
-            type="email"
-            value={form.email}
-            onChange={(e) => set("email", e.target.value)}
-            maxLength={200}
-            required
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="phone">Phone</Label>
-          <Input
-            id="phone"
-            type="tel"
-            value={form.phone}
-            onChange={(e) => set("phone", e.target.value)}
-            maxLength={30}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="time">Preferred Time</Label>
-          <Input
-            id="time"
-            placeholder="e.g. Weekday mornings"
-            value={form.preferredTime}
-            onChange={(e) => set("preferredTime", e.target.value)}
-            maxLength={100}
-          />
-        </div>
+function ContactCard({
+  icon: Icon,
+  label,
+  value,
+  href,
+  hint,
+}: {
+  icon: typeof Phone;
+  label: string;
+  value: string;
+  href?: string;
+  hint?: string;
+}) {
+  const content = (
+    <>
+      <div className="grid h-12 w-12 place-items-center rounded-lg bg-teal-soft text-teal">
+        <Icon className="h-5 w-5" strokeWidth={1.8} />
       </div>
-
-      <div className="space-y-1.5">
-        <Label>Inquiry Type *</Label>
-        <Select value={form.inquiryType} onValueChange={(v) => set("inquiryType", v)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select an inquiry type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="evaluation">Neuropsychological Evaluation</SelectItem>
-            <SelectItem value="therapy">Psychotherapy</SelectItem>
-            <SelectItem value="college">College / Academic Consulting</SelectItem>
-            <SelectItem value="general">General Inquiry</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
       </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="message">Brief message</Label>
-        <Textarea
-          id="message"
-          rows={4}
-          value={form.message}
-          onChange={(e) => set("message", e.target.value)}
-          maxLength={1000}
-          placeholder="Share a short note (no confidential medical details)."
-        />
-      </div>
-
-      <Button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-full bg-teal py-6 text-sm font-semibold text-teal-foreground hover:bg-teal/90"
-      >
-        {submitting ? "Sending…" : "Request a Consultation"}
-      </Button>
-    </form>
+      <div className="mt-1 font-serif text-2xl text-navy">{value}</div>
+      {hint && <p className="mt-2 text-sm text-muted-foreground">{hint}</p>}
+    </>
+  );
+  const className =
+    "flex flex-col rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] transition-all hover:-translate-y-1 hover:border-teal/40 hover:shadow-[var(--shadow-elegant)]";
+  return href ? (
+    <a href={href} className={className}>
+      {content}
+    </a>
+  ) : (
+    <div className={className}>{content}</div>
   );
 }
 
@@ -642,9 +687,8 @@ function Footer() {
             <h4 className="font-serif text-sm font-semibold text-white">Quick Links</h4>
             <ul className="mt-4 space-y-2 text-sm">
               <li><a href="#services" className="hover:text-teal">Services</a></li>
-              <li><a href="#academic" className="hover:text-teal">Academic Consulting</a></li>
               <li><a href="#about" className="hover:text-teal">About Dr. Rooney</a></li>
-              <li><a href="#forms" className="hover:text-teal">Forms</a></li>
+              <li><a href="#forms" className="hover:text-teal">Patient Forms Portal</a></li>
               <li><a href="#contact" className="hover:text-teal">Contact</a></li>
             </ul>
           </div>
@@ -659,14 +703,22 @@ function Footer() {
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
                 <a href={PHONE_HREF} className="hover:text-teal">{PHONE}</a>
               </li>
+              <li className="flex items-start gap-2">
+                <Printer className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
+                Fax: {FAX}
+              </li>
+              <li className="flex items-start gap-2">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
+                By appointment only
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="mt-12 rounded-lg border border-white/10 bg-white/5 p-4 text-xs leading-relaxed text-white/70">
           <strong className="text-white">HIPAA Notice:</strong> Please do not submit confidential
-          medical information via standard web contact forms. For clinical matters, please contact
-          the office directly by phone.
+          medical information via email or unsecured web forms. For clinical matters, please
+          contact the office directly by phone.
         </div>
 
         <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/60 sm:flex-row sm:items-center">
