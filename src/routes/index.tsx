@@ -92,7 +92,7 @@ function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 md:px-8">
         <a href="#top" className="flex min-w-0 items-center gap-3">
           <img
-            src={logo.url}
+            src={logo}
             alt="NeuroPsychConnections logo"
             className="h-10 w-auto shrink-0 sm:h-11"
           />
