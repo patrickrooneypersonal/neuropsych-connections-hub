@@ -622,11 +622,18 @@ function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-14 md:px-8">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
-            <div className="font-serif text-xl text-white">NeuroPsychConnections</div>
-            <div className="mt-1 text-xs uppercase tracking-[0.18em] text-teal">
-              Dr. Carolyn Rooney, Ph.D.
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-white/95 p-2">
+                <img src={logo} alt="NeuroPsychConnections" className="h-10 w-auto" />
+              </div>
+              <div>
+                <div className="font-serif text-lg text-white">NeuroPsychConnections</div>
+                <div className="text-xs uppercase tracking-[0.18em] text-teal">
+                  Dr. Carolyn Rooney, Ph.D.
+                </div>
+              </div>
             </div>
-            <p className="mt-4 max-w-md text-sm leading-relaxed text-white/70">
+            <p className="mt-5 max-w-md text-sm leading-relaxed text-white/70">
               Clinical neuropsychology, academic consulting, and integrative psychotherapy for
               children, adolescents, adults, and families.
             </p>
