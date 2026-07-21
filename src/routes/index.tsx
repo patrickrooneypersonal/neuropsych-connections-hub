@@ -89,12 +89,19 @@ function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 md:px-8">
-        <a href="#top" className="flex min-w-0 flex-col leading-tight">
-          <span className="font-serif text-lg font-semibold tracking-tight text-navy md:text-xl">
-            NeuroPsychConnections
-          </span>
-          <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-            Dr. Carolyn Rooney, Ph.D.
+        <a href="#top" className="flex min-w-0 items-center gap-3">
+          <img
+            src={logo.url}
+            alt="NeuroPsychConnections logo"
+            className="h-10 w-auto shrink-0 sm:h-11"
+          />
+          <span className="hidden min-w-0 flex-col leading-tight sm:flex">
+            <span className="font-serif text-base font-semibold tracking-tight text-navy">
+              NeuroPsychConnections
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Dr. Carolyn Rooney, Ph.D.
+            </span>
           </span>
         </a>
 
