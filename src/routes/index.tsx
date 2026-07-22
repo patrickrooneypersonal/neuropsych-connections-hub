@@ -571,11 +571,11 @@ function ContactInfo() {
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
             The majority of our patients are seen by direct referral. To inquire about services or
-            schedule a consultation, please reach out to the office by phone or fax.
+            schedule a consultation, please reach out to the office by phone.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <div className="mt-12 grid gap-5 md:grid-cols-2">
           <ContactCard
             icon={Phone}
             label="Phone"
@@ -584,18 +584,13 @@ function ContactInfo() {
             hint="Preferred — leave a confidential voicemail"
           />
           <ContactCard
-            icon={Printer}
-            label="Fax"
-            value={FAX}
-            hint="For referrals and secure documents"
-          />
-          <ContactCard
             icon={MapPin}
             label="Office"
-            value="Madison, New Jersey"
+            value="13 Madison Avenue, Madison, New Jersey"
             hint="By appointment only"
           />
         </div>
+
 
         <div className="mt-10 rounded-2xl border border-border bg-navy p-8 text-white md:p-10">
           <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
@@ -607,9 +602,9 @@ function ContactInfo() {
                 Call {PHONE} to get started.
               </p>
               <p className="mt-2 max-w-xl text-sm text-white/70">
-                Office hours by appointment. Please do not share confidential medical information
-                over email or unsecured channels.
+                Office hours by appointment.
               </p>
+
             </div>
             <a
               href={PHONE_HREF}
@@ -697,16 +692,13 @@ function Footer() {
             <ul className="mt-4 space-y-2 text-sm text-white/70">
               <li className="flex items-start gap-2">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
-                Madison, New Jersey
+                13 Madison Avenue, Madison, New Jersey
               </li>
               <li className="flex items-start gap-2">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
                 <a href={PHONE_HREF} className="hover:text-teal">{PHONE}</a>
               </li>
-              <li className="flex items-start gap-2">
-                <Printer className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
-                Fax: {FAX}
-              </li>
+
               <li className="flex items-start gap-2">
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
                 By appointment only
